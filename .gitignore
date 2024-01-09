@@ -1,0 +1,220 @@
+####################
+# GENERAL PATTERNS #
+####################
+
+# Logging
+**/logs
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pyinstaller
+*.manifest
+*.spec
+
+# Python installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Sphinx documentation build
+docs/_build/
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# User-specific stuff:
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+.idea/vcs.xml
+.idea/jsLibraryMappings.xml
+
+# Sensitive or high-churn files:
+.idea/dataSources.ids
+.idea/dataSources.xml
+.idea/dataSources.local.xml
+.idea/sqlDataSources.xml
+.idea/dynamic.xml
+.idea/uiDesigner.xml
+
+# Gradle:
+.idea/gradle.xml
+.idea/libraries
+
+# Mongo Explorer plugin:
+.idea/mongoSettings.xml
+
+.idea/
+
+# Environments
+.env
+.env.bak
+.venv
+.venv.bak
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# Visual Studio
+.vs/
+.vscode/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+mono_crash.*
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+Generated\ Files/
+
+# Tools
+.direnv/
+compile_commands.json
+.luarc.json
+.envrc
+
+# Build/deps dir
+build/
+.deps/
+tmp/
+.clangd/
+.cache/clangd/
+.ccls-cache/
+.clang-tidy
+*.mo
+*.o
+*.so
+*.ck
+
+# Luacheck
+.luacheckcache
+
+# Local make targets
+local.mk
+
+# Nix build results
+result
+result-*
+contrib/result
+contrib/result-*
+
+# Cmake / Make
+CMakeUserPresets.json
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows thumbnail cache files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# Vim/Neovim scripts
+*.vim
+*.nvim
+
+# Vim/Neovim temporary files
+*~
+.*.sw?
+
+# Information files
+*NOTE*
+*TODO*
+*FIXME*
+*BUG*
+*FIXIT*
+*ISSUE*
+*WARNING*
+*XXX*
+*OPTIM*
+*PERFORMANCE*
+*OPTIMIZE*
+*INFO*
+*TESTING*
+*PASSED*
+*FAILED*
+
+# Poetry locked file
+poetry.lock
+
