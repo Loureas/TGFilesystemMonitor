@@ -175,15 +175,18 @@ class TGFilesystemMonitorHandler(FileSystemEventHandler):
 
     def on_any_event(self, event: FileSystemMovedEvent):
         logger.debug(f"MONITOR: Catched new file system event: {event}")
-        event_text = local[self._tgfsm.lang][f"event_{event.event_type}"]
         match event.event_type:
             case "created":
+                event_text = local[self._tgfsm.lang][f"event_{event.event_type}"]
                 event_text = event_text.format(path=event.src_path)
             case "deleted":
+                event_text = local[self._tgfsm.lang][f"event_{event.event_type}"]
                 event_text = event_text.format(path=event.src_path)
             case "modified":
+                event_text = local[self._tgfsm.lang][f"event_{event.event_type}"]
                 event_text = event_text.format(path=event.src_path)
             case "moved":
+                event_text = local[self._tgfsm.lang][f"event_{event.event_type}"]
                 event_text = event_text.format(
                     src_path=event.src_path, dest_path=event.dest_path
                 )
