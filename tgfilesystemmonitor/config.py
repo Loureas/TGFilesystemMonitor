@@ -8,7 +8,6 @@ from pathlib import Path
 from dataclasses import dataclass
 from types import NoneType
 from environs import Env
-from typing import List
 
 env = Env()
 env.read_env()
@@ -114,7 +113,7 @@ class Config:
     server_name: str = opts.servername
     log_path: Path = opts.log_path
     monitor_path: Path = opts.monitor_path
-    monitor_exclude_paths: List[Path] = opts.monitor_exclude_paths
+    monitor_exclude_paths = opts.monitor_exclude_paths
     lang: str = opts.lang
     chat_id: int | str = opts.chatid
     action: str = opts.action
