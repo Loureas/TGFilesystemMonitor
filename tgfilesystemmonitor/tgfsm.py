@@ -219,12 +219,14 @@ class TGFilesystemMonitorHandler(FileSystemEventHandler):
         if event.event_type not in ("created", "deleted", "modified", "moved"):
             return
         event_src_path = Path(event.src_path)
-        for exclude_path in config.monitor_exclude_paths:
-            if event_src_path.is_relative_to(exclude_path):
-                return
-        for pattern in config.monitor_exclude_patterns:
-            if re.match(rf"{pattern}", event.src_path):
-                return
+        if config.monitor_exclude_paths:
+            for exclude_path in config.monitor_exclude_paths:
+                if event_src_path.is_relative_to(exclude_path):
+                    return
+        if config.monitor_exclude_patterns:
+            for pattern in config.monitor_exclude_patterns:
+                if re.match(rf"{pattern}", event.src_path):
+                    return
         if event.event_type == "modified" and event.is_directory:
             return
         event_text = local[self._tgfsm.lang][f"event_{event.event_type}"]
