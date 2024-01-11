@@ -215,17 +215,19 @@ class TGFilesystemMonitorHandler(FileSystemEventHandler):
 
     def on_any_event(self, event: FileSystemMovedEvent):
         logger.debug(f"MONITOR: Catched new file system event: {event}")
-        if (
-            event.event_type in ("created", "deleted", "modified", "moved")
-            and event.src_path not in config.monitor_exclude_paths
-        ):
-            event_text = local[self._tgfsm.lang][f"event_{event.event_type}"]
-            if event.event_type == "moved":
-                event_text = event_text.format(
-                    src_path=event.src_path, dest_path=event.dest_path
-                )
-            else:
-                event_text = event_text.format(path=event.src_path)
-            logger.debug("MONITOR: Running a report due to an event")
-            if self._tgfsm.report(self.chat_id, event_text):
-                logger.debug("MONITOR: The report was completed successfully")
+        if event.event_type not in ("created", "deleted", "modified", "moved"):
+            return
+        event_src_path = Path(event.src_path)
+        for exclude_path in config.monitor_exclude_paths:
+            if event_src_path.is_relative_to(exclude_path):
+                return
+        event_text = local[self._tgfsm.lang][f"event_{event.event_type}"]
+        if event.event_type == "moved":
+            event_text = event_text.format(
+                src_path=event.src_path, dest_path=event.dest_path
+            )
+        else:
+            event_text = event_text.format(path=event.src_path)
+        logger.debug("MONITOR: Running a report due to an event")
+        if self._tgfsm.report(self.chat_id, event_text):
+            logger.debug("MONITOR: The report was completed successfully")
