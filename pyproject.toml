@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tgfilesystemmonitor"
-version = "1.0.0"
+version = "0.1.0"
 description = "A script that monitors file system events and sends a report via Telegram (Available only on Unix-like systems)."
 authors = ["Loureas (Pavel Piskursky)"]
 readme = "README.md"
