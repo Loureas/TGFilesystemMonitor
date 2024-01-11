@@ -1,5 +1,6 @@
-import time
 import asyncio
+import re
+import time
 from pathlib import Path
 import subprocess
 import arrow
@@ -221,6 +222,11 @@ class TGFilesystemMonitorHandler(FileSystemEventHandler):
         for exclude_path in config.monitor_exclude_paths:
             if event_src_path.is_relative_to(exclude_path):
                 return
+        for pattern in config.monitor_exclude_patterns:
+            if re.match(rf"{pattern}", event.src_path):
+                return
+        if event.event_type == "modified" and event.is_directory:
+            return
         event_text = local[self._tgfsm.lang][f"event_{event.event_type}"]
         if event.event_type == "moved":
             event_text = event_text.format(

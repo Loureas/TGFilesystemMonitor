@@ -77,9 +77,16 @@ args_parser.add_argument(
     help='-- minimal logging level (default: "INFO"): TRACE, DEBUG, INFO',
 )
 args_parser.add_argument(
-    "--monitor-exclude-paths",
-    type=lambda s: [Path(item) for item in s.split(",")],
-    help="-- paths in which the monitor will ignore their events. Example: /var/log,/etc",
+    "--monitor-exclude-path",
+    type=Path,
+    action="append",
+    help="-- path in which the monitor will ignore their events. Example: /var/log",
+)
+args_parser.add_argument(
+    "--monitor-exclude-pattern",
+    type=str,
+    action="append",
+    help="-- pattern (regular expression) which the monitor will ignore in paths. Example: .*.log",
 )
 opts = args_parser.parse_args()
 if opts.action == "monitor" and isinstance(opts.monitor_path, NoneType):
@@ -100,6 +107,7 @@ class Config:
     :param log_path: Path to the directory with logging files
     :param monitor_path: directory or file for monitor
     :param monitor_exclude_paths: paths in which the monitor will ignore their events
+    :param monitor_exclude_patterns: patterns which the monitor will ignore in paths
     :param lang: Script language
     :param chat_id: Telegram chat for sending notifications
     :param action: Script operation mode
@@ -113,7 +121,8 @@ class Config:
     server_name: str = opts.servername
     log_path: Path = opts.log_path
     monitor_path: Path = opts.monitor_path
-    monitor_exclude_paths = opts.monitor_exclude_paths
+    monitor_exclude_paths = opts.monitor_exclude_path
+    monitor_exclude_patterns = opts.monitor_exclude_pattern
     lang: str = opts.lang
     chat_id: int | str = opts.chatid
     action: str = opts.action
