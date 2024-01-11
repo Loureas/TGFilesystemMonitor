@@ -4,13 +4,14 @@ from pathlib import Path
 import subprocess
 import arrow
 from aiogram import Bot
-from aiogram.types import Message, BufferedInputFile
+from aiogram import exceptions as aiogram_exceptions
+from aiogram.types import InputFile, Message, BufferedInputFile
 from watchdog.observers import Observer
 from watchdog.events import (
     FileSystemMovedEvent,
     FileSystemEventHandler,
-    FileSystemEvent,
 )
+from config import config
 from local import local
 from log import logger
 
@@ -48,18 +49,58 @@ class TGFilesystemMonitor:
         Generate filename string
 
         :param extension: Extension for filename string
+        :return: File name
         """
 
         time = arrow.utcnow().to(self.timezone)
         timestamp = time.int_timestamp
         return f"report_{self.server_name}_{time.format('YYYY-MM-DD-HH-mm-ss')}_{timestamp}.{extension}"
 
-    def report(self, chat_id: int | str, caption: str | None = None) -> Message:
+    def _send_document(
+        self, chat_id: int | str, document: InputFile | str, caption: str | None = None
+    ) -> Message | None:
+        """
+        Sends a file to the chat, additionally handling Telegram errors
+        :param chat_id: Unique identifier for the target chat or username of the target channel (in the format :code:`@channelusername`)
+        :param document: File to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. :ref:`More information on Sending Files » <sending-files>`
+        :param caption: Document caption (may also be used when resending documents by *file_id*), 0-1024 characters after entities parsing
+        :return: Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future.
+        """
+
+        try:
+            return self._loop.run_until_complete(
+                self.bot.send_document(chat_id, document, caption=caption)
+            )
+        except aiogram_exceptions.TelegramRetryAfter as e:
+            logger.warning(
+                f"TELEGRAM: Flood restriction triggered. The message will be in {e.retry_after} seconds"
+            )
+            time.sleep(e.retry_after + 2)
+            return self._send_document(chat_id, document, caption)
+        except aiogram_exceptions.TelegramNotFound:
+            logger.error(f"TELEGRAM: Chat {chat_id} not found")
+        except aiogram_exceptions.TelegramMigrateToChat as e:
+            logger.error(
+                f"TELEGRAM: Chat has been migrated to a supergroup {e.migrate_to_chat_id}"
+            )
+        except aiogram_exceptions.TelegramConflictError:
+            logger.error("TELEGRAM: Bot is already used by another application")
+        except aiogram_exceptions.TelegramUnauthorizedError:
+            logger.error("TELEGRAM: Unauthorized. Check your bot token")
+        except aiogram_exceptions.TelegramForbiddenError:
+            logger.error("TELEGRAM: Forbidden. Bot is kicked from chat or etc")
+        except aiogram_exceptions.TelegramEntityTooLarge:
+            logger.error("TELEGRAM: File is too large to send a message")
+        except aiogram_exceptions.TelegramNetworkError:
+            logger.error("TELEGRAM: Network error")
+
+    def report(self, chat_id: int | str, caption: str | None = None) -> Message | None:
         """
         Generate and send report to chat via Telegram bot
 
         :param chat_id: Telegram chat for sending notification
         :param caption: Caption for notification
+        :return: On success, the sent :class:`aiogram.types.message.Message` is returned.
         """
 
         logger.debug("REPORT: Report collection started")
@@ -129,15 +170,14 @@ class TGFilesystemMonitor:
 
         logger.debug("REPORT: Report collection completed")
         logger.debug("REPORT: Sending report to chat")
-        message = self._loop.run_until_complete(
-            self.bot.send_document(
-                chat_id,
-                BufferedInputFile(buffer.encode(), self._gen_filename()),
-                caption=caption,
-            )
+        message = self._send_document(
+            chat_id,
+            BufferedInputFile(buffer.encode(), self._gen_filename()),
+            caption=caption,
         )
-        logger.debug("REPORT: Report sent to chat")
-        return message
+        if message:
+            logger.debug("REPORT: Report sent to chat")
+            return message
 
     def start_monitor(self, monitor_path: Path, chat_id: int | str):
         logger.debug("MONITOR: Creating event handler")
@@ -175,7 +215,10 @@ class TGFilesystemMonitorHandler(FileSystemEventHandler):
 
     def on_any_event(self, event: FileSystemMovedEvent):
         logger.debug(f"MONITOR: Catched new file system event: {event}")
-        if event.event_type in ("created", "deleted", "modified", "moved"):
+        if (
+            event.event_type in ("created", "deleted", "modified", "moved")
+            and event.src_path not in config.monitor_exclude_paths
+        ):
             event_text = local[self._tgfsm.lang][f"event_{event.event_type}"]
             if event.event_type == "moved":
                 event_text = event_text.format(
@@ -184,5 +227,5 @@ class TGFilesystemMonitorHandler(FileSystemEventHandler):
             else:
                 event_text = event_text.format(path=event.src_path)
             logger.debug("MONITOR: Running a report due to an event")
-            self._tgfsm.report(self.chat_id, event_text)
-            logger.debug("MONITOR: The report was completed successfully")
+            if self._tgfsm.report(self.chat_id, event_text):
+                logger.debug("MONITOR: The report was completed successfully")
